@@ -1,0 +1,30 @@
+<div class="form-group" id="loginForm">
+    <input type="text" id="username" placeholder="username" [(ngModel)]="username">
+    <input type="password" id="password" placeholder="password" [(ngModel)]="password">
+    <button (click)="login()" [disabled]="loggedIn">login</button>
+</div>
+<button (click)="history()" [disabled]="!loggedIn">hist</button>
+
+
+
+<div id="chartContainer" style="height: 370px; width: 100%;"></div>
+<div id="plot"></div>
+
+<div *ngIf="dataArray">
+    {{tickers}}
+
+    <h1>Selecting object</h1>
+    <select (change)="selectedTickerChanged()" [(ngModel)]="selectedTicker">
+        <option *ngFor="let ticker of tickers">{{ticker}}</option>
+    </select>
+    {{selectedTicker}}
+
+    <table>
+        <tr>
+            <th *ngFor="let item of header">{{item}}</th>
+        </tr>
+        <tr *ngFor="let item of displayData">
+            <td *ngFor="let k of header">{{item.get(k)}}</td>
+        </tr>
+    </table>
+</div>
