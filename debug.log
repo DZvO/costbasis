@@ -1,0 +1,8 @@
+[1221/215732.163:ERROR:directory_reader_win.cc(43)] FindFirstFile: Das System kann den angegebenen Pfad nicht finden. (0x3)
+[1224/172932.207:ERROR:directory_reader_win.cc(43)] FindFirstFile: Das System kann den angegebenen Pfad nicht finden. (0x3)
+[1226/123836.027:ERROR:directory_reader_win.cc(43)] FindFirstFile: Das System kann den angegebenen Pfad nicht finden. (0x3)
+[0103/162725.134:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\jenni\AppData\Local\Temp\.profile\Crashpad\attachments\929b4235-746a-4437-8829-710e79ea91f1: Das System kann den angegebenen Pfad nicht finden. (0x3)
+[0103/162725.135:ERROR:directory_reader_win.cc(43)] FindFirstFile: Das System kann den angegebenen Pfad nicht finden. (0x3)
+[0105/150750.762:ERROR:directory_reader_win.cc(43)] FindFirstFile: Das System kann den angegebenen Pfad nicht finden. (0x3)
+[0115/223644.006:ERROR:directory_reader_win.cc(43)] FindFirstFile: Das System kann den angegebenen Pfad nicht finden. (0x3)
+[0116/110808.513:ERROR:directory_reader_win.cc(43)] FindFirstFile: Das System kann den angegebenen Pfad nicht finden. (0x3)

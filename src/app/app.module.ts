@@ -12,12 +12,16 @@ import {MatTableModule} from '@angular/material/table'
 import { CommonModule } from '@angular/common';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';  
 import { FormsModule } from '@angular/forms';
+import { HomeComponent } from './home/home.component';
+import { LoginComponent } from './login/login.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    GraphsComponent
+    GraphsComponent,
+    HomeComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
