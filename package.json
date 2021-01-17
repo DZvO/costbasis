@@ -30,7 +30,8 @@
     "rxjs": "~6.6.0",
     "tasty-works-api": "^0.6.0",
     "tslib": "^2.0.0",
-    "zone.js": "~0.10.2"
+    "zone.js": "~0.10.2",
+    "superagent": "^5.0.5"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1001.2",
