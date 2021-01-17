@@ -4,20 +4,32 @@
     <button (click)="login()">login</button>
 </div>
 <button (click)="history()" [disabled]="!loggedIn">hist</button>
-<button (click)="twAddQuoteSub('PLTR')" [disabled]="!loggedIn">pltr sub</button>
 
-<div *ngIf="dataArray">
-    {{tickers}}
-
-    <h1>Selecting object</h1>
+<div *ngIf="loggedIn">
     <select (change)="selectedTickerChanged()" [(ngModel)]="selectedTicker">
         <option *ngFor="let ticker of tickers">{{ticker}}</option>
     </select>
-    {{selectedTicker}}
-    <label>{{price}}</label>
-
-    <label>tradehistory</label>
-
+    <div *ngIf="tickerInfor.has(selectedTicker)">
+        <label class="ticker">{{selectedTicker}}</label>
+        <label class="labelspacer">ask</label>
+        <label class="ask">{{tickerInfor.get(selectedTicker).askPrice}}</label><label class="asksize">x{{tickerInfor.get(selectedTicker).askSize}}</label>
+        <label class="labelspacer">bid</label>
+        <label class="bid">{{tickerInfor.get(selectedTicker).bidPrice}}</label><label class="asksize">x{{tickerInfor.get(selectedTicker).bidSize}}</label>
+        <label class="labelspacer">mid</label>
+        <label id="mid" [ngClass]="(tickerInfor.get(selectedTicker).midPrice >= tickerInfor.get(selectedTicker).lastMidPrice)?'midprice-stonksgoup':'midprice-stonksgodown'">{{tickerInfor.get(selectedTicker).midPrice}}</label>
+    </div>
+    <div *ngIf="profileInfo.has(selectedTicker)">
+        <label>{{profileInfo.get(selectedTicker).description}}</label>
+        <label>{{profileInfo.get(selectedTicker).shortSaleRestriction}}</label>
+        <label>{{profileInfo.get(selectedTicker).tradingStatus}}</label>
+        <label>{{profileInfo.get(selectedTicker).statusReason}}</label>
+        <label>{{profileInfo.get(selectedTicker).haltStart.toLocaleString('de-DE', { timeZone: 'UTC' })}}</label>
+        <label>{{profileInfo.get(selectedTicker).haltEnd.toLocaleString('de-DE', { timeZone: 'UTC' })}}</label>
+        <label>{{profileInfo.get(selectedTicker).highLimitPrice}}</label>
+        <label>{{profileInfo.get(selectedTicker).lowLimitPrice}}</label>
+        <label>{{profileInfo.get(selectedTicker).high52WeekPrice}}</label>
+        <label>{{profileInfo.get(selectedTicker).low52WeekPrice}}</label>
+    </div>
     <table class="table table-bordered">
         <thead>
             <tr>

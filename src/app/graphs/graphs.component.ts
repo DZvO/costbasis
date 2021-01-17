@@ -1,15 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import * as CanvasJS from '../../assets/canvasjs.min.js';
-
 import * as d3 from 'd3';
+import { BoundDirectivePropertyAst } from '@angular/compiler';
 
 declare var require: any;
-const TastyWorks = require('tasty-works-api/lib/index');
+import * as TastyWorks from 'src/assets/TastyWorks';
+import * as cometdLib from 'cometd';
 
-var cometdLib = require('cometd');
-
+import { Candle } from 'src/app/dtos/candle';
+import { Greeks } from 'src/app/dtos/greeks';
+import { Profile } from 'src/app/dtos/profile';
+import { Quote } from 'src/app/dtos/quote';
+import { Summary } from 'src/app/dtos/summary';
+import { TheoPrice } from 'src/app/dtos/theo-price';
+import { Trade } from 'src/app/dtos/trade';
 
 @Component({
   selector: 'app-graphs',
@@ -44,13 +49,14 @@ export class GraphsComponent implements OnInit {
   debugEntries = [];
   headerkeys = [];
 
-  price = 0.0;
+  tickerInfor: Map<string, Quote> = new Map<string, Quote>();
+  profileInfo: Map<string, Profile> = new Map<string, Profile>();
 
   ngOnInit(): void {
     this.checkIfLoggedIn();
   }
 
-  checkIfLoggedIn() {
+  checkIfLoggedIn(): void {
     if (localStorage.getItem('token') != null
       && localStorage.getItem('accounts') != null
       && localStorage.getItem('accid') != null) {
@@ -71,11 +77,13 @@ export class GraphsComponent implements OnInit {
       });
   }
 
-  selectedTickerChanged() {
+  // TODO this method is huge, reduce it
+  selectedTickerChanged(): void {
     if (this.selectedTicker === '') {
       this.displayData = this.dataArray;
     }
     else {
+      this.twAddQuoteSub(this.selectedTicker);
       console.log('selecting data for ' + this.selectedTicker);
       // filter all data to only contain selected ticker
       this.displayData = this.dataArray
@@ -110,7 +118,7 @@ export class GraphsComponent implements OnInit {
       this.debugEntries = [];
       var prevCB = 0;
       for (const l of this.displayData) {
-        console.log(l);
+        //console.log(l);
         const bto = l['action'] === 'Buy to Open';
         const btc = l['action'] === 'Buy to Close';
         const sto = l['action'] === 'Sell to Open';
@@ -135,7 +143,7 @@ export class GraphsComponent implements OnInit {
     }
   }
 
-  twSaveAccountInfo(accounts) {
+  twSaveAccountInfo(accounts): void {
     const TASTY_ACCOUNT_ID = accounts[0]['account-number'];
     TastyWorks.setUser({ accounts });
 
@@ -144,7 +152,7 @@ export class GraphsComponent implements OnInit {
     this.tw_accid = TASTY_ACCOUNT_ID;
   }
 
-  twActivateStreamer() {
+  twActivateStreamer(): void {
     TastyWorks.streamer()
       .then(resp => {
         const streamerUrl = resp['websocket-url'] + '/cometd';
@@ -163,9 +171,34 @@ export class GraphsComponent implements OnInit {
           if (handshakeReply.successful) {
             this.cometd.subscribe('/service/data',
               message => {
-                //TODO add message parser logic here
                 console.log('msg: ' + JSON.stringify(message));
-                this.price = message.data[1][6];
+                if (Array.isArray(message.data[0])) { // got message with header, remove header
+                  const type = message.data[0][0];
+                  message.data.shift(1);
+                  message.data.unshift(type);
+                }
+                // TODO handle case where we receive multiple elements in one message
+                if (message.data[0] === 'Quote') {
+                  message.data.shift(1);
+                  while (message.data[0].length > 0) {
+                    const v = message.data[0];
+                    const ticker = v[0];
+                    const q = this.tickerInfor.has(ticker) ? this.tickerInfor.get(ticker) : new Quote();
+                    q.update(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11]);
+                    this.tickerInfor.set(ticker, q);
+                    message.data[0].shift(12);
+                  }
+                } else if (message.data[0] === 'Profile') {
+                  message.data.shift(1);
+                  while (message.data[0].length > 0) {
+                    const v = message.data[0];
+                    const ticker = v[0];
+                    const p = this.profileInfo.has(ticker) ? this.profileInfo.get(ticker) : new Profile();
+                    p.update(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11]);
+                    this.profileInfo.set(ticker, p);
+                    message.data[0].shift(12);
+                  }
+                }
               },
               subscribeReply => {
                 if (subscribeReply.successful) {
@@ -179,7 +212,7 @@ export class GraphsComponent implements OnInit {
       });
   }
 
-  login() {
+  login(): void {
     const credentials = {
       username: this.username,
       password: this.password
@@ -208,6 +241,8 @@ export class GraphsComponent implements OnInit {
   }
 
   twAddQuoteSub(ticker): void {
+    if (this.tickerInfor.has(ticker)) { return; }
+    console.log('adding quote sub for ' + ticker);
     this.cometd.publish('/service/sub', { add: { Quote: [ticker] } }, publishAck => {
       if (publishAck.successful) {
         console.log('sub acknowledged');
@@ -215,17 +250,32 @@ export class GraphsComponent implements OnInit {
     });
   }
 
+  twAddProfileSub(ticker): void {
+    if (this.profileInfo.has(ticker)) { return; }
+    console.log('adding profile sub for ' + ticker);
+    this.cometd.publish('/service/sub', { add: { Profile: [ticker] } }, publishAck => {
+      if (publishAck.successful) {
+        console.log('sub acknowledged');
+      }
+    });
+  }
+
+  twAddCandleSub(ticker): void { // TODO
+    this.cometd.publish('/service/sub', {});
+  }
+
   getInfoForTicker(ticker): void {
     this.twAddQuoteSub(ticker);
+    this.twAddProfileSub(ticker);
     TastyWorks.marketMetrics([ticker])
       .then(a => console.log(a))
       .catch(err => console.log(err.status));
   }
 
   history(): void {
-    TastyWorks.balances(this.tw_accid).then(balances => console.log(balances))
+    TastyWorks.balances(this.tw_accid)
+      .then(balances => console.log(balances))
       .catch(err => console.log(err.status))
-      .then(a => console.log(a));
 
     TastyWorks.history(this.tw_accid, '01/01/2019', '01/05/2021')
       .catch(err => console.log(err.status))
@@ -239,7 +289,7 @@ export class GraphsComponent implements OnInit {
           const symbol = k['underlying-symbol'];
           if (!this.tickers.includes(symbol)) { this.tickers.push(symbol); }
 
-          console.log('adding:' + JSON.stringify(k));
+          //console.log('adding:' + JSON.stringify(k));
           this.dataArray.push(k);
         }
         console.log('done parsing data.');

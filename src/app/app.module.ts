@@ -7,10 +7,10 @@ import { AppComponent } from './app.component';
 import { GraphsComponent } from './graphs/graphs.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import {MatTableModule} from '@angular/material/table'
+import {MatTableModule} from '@angular/material/table';
 
 import { CommonModule } from '@angular/common';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';  
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
