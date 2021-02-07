@@ -1,1 +1,22 @@
-<app-graphs></app-graphs>
+<div class="form-group" id="loginForm" *ngIf="!loggedIn">
+    <input type="text" id="username" placeholder="username" [(ngModel)]="username">
+    <input type="password" id="password" placeholder="password" [(ngModel)]="password">
+    <button (click)="login()">login</button>
+</div>
+<button (click)="history()" [disabled]="!loggedIn">hist</button>
+
+<div *ngIf="loggedIn">
+<div id="header">
+    <div *ngIf="balanceInfo != null" class="accountinfo">
+        <label class="labelspacer lightlabel">cash</label><label>{{balanceInfo.cashBalance}}</label>
+        <label class="labelspacer lightlabel">equity-bp</label><label>{{balanceInfo.equityBuyingPower}}</label>
+        <label class="labelspacer lightlabel">option-bp</label><label>{{balanceInfo.derivativeBuyingPower}}</label>
+    </div>
+    <label class="labelspacer"><a routerLink="/portfolio" routerLinkActive="active">Portfolio</a></label>
+    <label class="labelspacer"><a routerLink="/trade" routerLinkActive="active">Trade</a></label>
+    <label class="labelspacer"><a routerLink="/charts" routerLinkActive="active">Charts/Watchlist</a></label>
+    <label class="labelspacer"><a routerLink="/history" routerLinkActive="active">History</a></label>
+</div>
+
+<router-outlet></router-outlet>
+</div>

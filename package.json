@@ -25,13 +25,14 @@
     "@angular/router": "~10.1.2",
     "@ng-bootstrap/ng-bootstrap": "^8.0.0",
     "bootstrap": "^4.5.0",
+    "bottleneck": "^2.19.5",
     "cometd": "^7.0.0",
     "d3": "^6.3.0",
     "rxjs": "~6.6.0",
+    "superagent": "^5.0.5",
     "tasty-works-api": "^0.6.0",
     "tslib": "^2.0.0",
-    "zone.js": "~0.10.2",
-    "superagent": "^5.0.5"
+    "zone.js": "~0.10.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1001.2",

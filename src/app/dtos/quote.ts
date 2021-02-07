@@ -13,18 +13,22 @@ export class Quote {
     askSize: number;
 
     midPrice: number;
-    lastAskPrice: number;
+    lastAskPrice: number; //TODO rename to previous to avoid confusion
     lastBidPrice: number;
     lastMidPrice: number;
 
-    constructor(eventSymbol?, eventTime?, sequence?, timeNanoPart?, bidTime?, bidExchangeCode?,
-        bidPrice?, bidSize?, askTime?, askExchangeCode?, askPrice?, askSize?) {
+    constructor(eventSymbol?: string, eventTime?: number, sequence?: number, timeNanoPart?: number,
+        bidTime?: number, bidExchangeCode?: string, bidPrice?: number, bidSize?: number,
+        askTime?: number, askExchangeCode?: string, askPrice?: number, askSize?: number
+    ) {
         this.update(eventSymbol, eventTime, sequence, timeNanoPart, bidTime, bidExchangeCode,
             bidPrice, bidSize, askTime, askExchangeCode, askPrice, askSize);
     }
 
-    update(eventSymbol, eventTime, sequence, timeNanoPart, bidTime, bidExchangeCode,
-        bidPrice, bidSize, askTime, askExchangeCode, askPrice, askSize): void {
+    update(eventSymbol: string, eventTime: number, sequence: number, timeNanoPart: number,
+        bidTime: number, bidExchangeCode: string, bidPrice: number, bidSize: number,
+        askTime: number, askExchangeCode: string, askPrice: number, askSize: number
+    ): void {
         this.lastAskPrice = this.askPrice;
         this.lastBidPrice = this.bidPrice;
         this.lastMidPrice = this.midPrice;

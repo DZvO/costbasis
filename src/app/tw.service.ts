@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
+
 import { HttpClient } from '@angular/common/http';
 
 import * as d3 from 'd3';
@@ -18,12 +19,13 @@ import { TheoPrice } from 'src/app/dtos/theo-price';
 import { Trade } from 'src/app/dtos/trade';
 import { BalanceInfo } from 'src/app/dtos/balanceinfo';
 
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+@Injectable({
+  providedIn: 'root'
 })
-export class AppComponent implements OnInit {
+export class TwService {
+
+  constructor() { }
+
   IRRELEVANT_FIELDS =
     [
       'account-number', 'exchange', 'exec-id', 'ext-exchange-order-number', 'ext-exec-id', 'ext-global-order-number', 'ext-group-fill-id', 'ext-group-id',
