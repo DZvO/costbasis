@@ -1,3 +1,128 @@
 body {
     //max-width: 100% !important;
 }
+
+:root {
+	--nc-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
+		"Open Sans", "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	--nc-font-mono: Consolas, monaco, "Ubuntu Mono", "Liberation Mono", "Courier New", Courier, monospace;
+
+	/* Light theme */
+	--nc-tx-1: #000000;
+	--nc-tx-2: #1a1a1a;
+	--nc-bg-1: #ffffff;
+	--nc-bg-2: #f6f8fa;
+	--nc-bg-3: #e5e7eb;
+	--nc-lk-1: #0070f3;
+	--nc-lk-2: #0366d6;
+	--nc-lk-tx: #ffffff;
+	--nc-ac-1: #79ffe1;
+	--nc-ac-tx: #0c4047;
+
+	/* Dark theme */
+	--nc-d-tx-1: #ffffff;
+	--nc-d-tx-2: #eeeeee;
+	--nc-d-bg-1: #000000;
+	--nc-d-bg-2: #111111;
+	--nc-d-bg-3: #222222;
+	--nc-d-lk-1: #3291ff;
+	--nc-d-lk-2: #0070f3;
+	--nc-d-lk-tx: #ffffff;
+	--nc-d-ac-1: #7928ca;
+	--nc-d-ac-tx: #ffffff;
+}
+
+table {
+	/* border-collapse sets the table's elements to share borders, rather than floating as separate "boxes". */
+	//width: 100%;
+}
+td,
+th {
+	border: 1px solid var(--nc-bg-3);
+	//text-align: left;
+	padding: 0.5rem;
+}
+
+th {
+	background: var(--nc-bg-2);
+}
+
+tr:nth-child(even) {
+	/* Set every other cell slightly darker. Improves readability. */
+	background: var(--nc-bg-2);
+}
+
+table caption {
+	font-weight: bold;
+	margin-bottom: 0.5rem;
+}
+
+.labelspacer {
+    margin: 0.4%;
+    white-space: nowrap;
+}
+
+.lightlabel {
+	font-style: italic;
+	font-weight: 300;
+	color: #2f2f2f;
+}
+
+.ticker {
+	@extend .labelspacer;
+	font-size: 1.8em;
+}
+
+.bid {
+	@extend .labelspacer;
+	color: #2f2f2f;
+	font-size: 1.8em;
+}
+
+.ask {
+	@extend .labelspacer;
+	color: #2f2f2f;
+	font-size: 1.8em;
+}
+
+.bidsize {
+	@extend .labelspacer;
+	color: #b0b0b0;
+	font-size: 1em;
+}
+.asksize {
+	@extend .labelspacer;
+	color: #b0b0b0;
+	font-size: 1em;
+}
+
+.midprice {
+	@extend .labelspacer;
+	font-size: 1.8em;
+
+	&-stonksgoup {
+		@extend .midprice;
+		color: #56b030;
+	}
+
+	&-stonksgodown {
+		@extend .midprice;
+		color: #b03030;
+	}
+}
+
+table {
+	width: 100%;
+}
+
+#header {
+	display:flex;
+}
+
+.accountinfo {
+	width: 100%;
+}
+
+.active {
+    color:#2f2f2f;
+}

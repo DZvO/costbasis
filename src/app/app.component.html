@@ -1,22 +1,30 @@
-<div class="form-group" id="loginForm" *ngIf="!loggedIn">
-    <input type="text" id="username" placeholder="username" [(ngModel)]="username">
-    <input type="password" id="password" placeholder="password" [(ngModel)]="password">
-    <button (click)="login()">login</button>
-</div>
-<button (click)="history()" [disabled]="!loggedIn">hist</button>
+<form (submit)="twService.login(username, password)" action="#" id="nudel" name="ndnd" *ngIf="!twService.loggedIn"
+    class="form-group">
+    <input type="text" id="username" placeholder="username" name="usernamer" [(ngModel)]="username">
+    <input type="password" id="password" placeholder="password" name="password" [(ngModel)]="password">
+    <button mat-raised-button type="submit" class="successButton" id="invSearch"
+        title="Click to perform search.">Search</button>
+    <p style="color: lightcoral;">{{twService.loginErrorMessage}}</p>
+    <p style="color: lightcoral;">nudel</p>
+</form>
 
-<div *ngIf="loggedIn">
-<div id="header">
-    <div *ngIf="balanceInfo != null" class="accountinfo">
-        <label class="labelspacer lightlabel">cash</label><label>{{balanceInfo.cashBalance}}</label>
-        <label class="labelspacer lightlabel">equity-bp</label><label>{{balanceInfo.equityBuyingPower}}</label>
-        <label class="labelspacer lightlabel">option-bp</label><label>{{balanceInfo.derivativeBuyingPower}}</label>
+
+<div *ngIf="twService.loggedIn">
+    <div id="header">
+        <div *ngIf="twService.balanceInfo != null" class="accountinfo">
+            <label class="labelspacer lightlabel">cash</label><label>{{twService.balanceInfo.cashBalance}}</label>
+            <label
+                class="labelspacer lightlabel">equity-bp</label><label>{{twService.balanceInfo.equityBuyingPower}}</label>
+            <label
+                class="labelspacer lightlabel">option-bp</label><label>{{twService.balanceInfo.derivativeBuyingPower}}</label>
+        </div>
+        <label class="labelspacer">{{twService.getPendingSubs() > 0 ? "Pending: " + twService.getPendingSubs() : ""}}</label>
+        <label class="labelspacer"><a routerLink="/portfolio" routerLinkActive="active">Portfolio</a></label>
+        <label class="labelspacer"><a routerLink="/trade" routerLinkActive="active">Trade</a></label>
+        <label class="labelspacer"><a routerLink="/research" routerLinkActive="active">Research</a></label>
+        <label class="labelspacer"><a routerLink="/charts" routerLinkActive="active">Charts/Watchlist</a></label>
+        <label class="labelspacer"><a routerLink="/history" routerLinkActive="active">History</a></label>
     </div>
-    <label class="labelspacer"><a routerLink="/portfolio" routerLinkActive="active">Portfolio</a></label>
-    <label class="labelspacer"><a routerLink="/trade" routerLinkActive="active">Trade</a></label>
-    <label class="labelspacer"><a routerLink="/charts" routerLinkActive="active">Charts/Watchlist</a></label>
-    <label class="labelspacer"><a routerLink="/history" routerLinkActive="active">History</a></label>
-</div>
 
-<router-outlet></router-outlet>
+    <router-outlet></router-outlet>
 </div>

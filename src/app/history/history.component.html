@@ -1,12 +1,15 @@
+<select (change)="twService.selectedTickerChanged()" [(ngModel)]="twService.selectedTicker">
+    <option *ngFor="let ticker of twService.tickers">{{ticker}}</option>
+</select>
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th *ngFor="let k of headerkeys" id="{{k}}">{{k}}</th>
+            <th *ngFor="let k of twService.headerkeys" id="{{k}}">{{k}}</th>
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let row of displayData">
-            <td *ngFor="let k of headerkeys" headers="{{row[k]}}">{{row[k]}}</td>
+        <tr *ngFor="let row of twService.displayData">
+            <td *ngFor="let k of twService.headerkeys" headers="{{row[k]}}">{{row[k]}}</td>
         </tr>
     </tbody>
 </table>

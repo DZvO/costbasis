@@ -18,6 +18,7 @@ import { Summary } from 'src/app/dtos/summary';
 import { TheoPrice } from 'src/app/dtos/theo-price';
 import { Trade } from 'src/app/dtos/trade';
 import { BalanceInfo } from 'src/app/dtos/balanceinfo';
+import { Convert, MarketMetrics } from "src/app/dtos/marketmetrics";
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,7 @@ export class TwService {
 
   constructor() { }
 
-  IRRELEVANT_FIELDS =
+  readonly IRRELEVANT_FIELDS =
     [
       'account-number', 'exchange', 'exec-id', 'ext-exchange-order-number', 'ext-exec-id', 'ext-global-order-number', 'ext-group-fill-id', 'ext-group-id',
       'proprietary-index-option-fees', 'proprietary-index-option-fees-effect', 'regulatory-fees-effect', 'id', 'order-id', 'is-estimated-fee',
@@ -35,10 +36,11 @@ export class TwService {
 
   dataArray: {}[] = [];
   tickers = [];
-  selectedTicker = 'PLTR';
+  selectedTicker = '';
   username = '';
   password = '';
   loggedIn = false;
+  loginErrorMessage = '';
   tw_accid = null;
   cometd = null;
   limiter = new Bottleneck({
@@ -51,13 +53,14 @@ export class TwService {
   greeksInfo: Map<string, Greeks> = new Map<string, Greeks>();
   quoteInfo: Map<string, Quote> = new Map<string, Quote>();
   profileInfo: Map<string, Profile> = new Map<string, Profile>();
+  marketMetrics: Map<string, MarketMetrics> = new Map<string, MarketMetrics>();
   optionChains: any = null;
   balanceInfo: BalanceInfo = null;
 
   tw_sub_req: any = { add: { Quote: [], Profile: [], Greeks: [] } };
 
-  ngOnInit(): void {
-    this.checkIfLoggedIn();
+  getPendingSubs(): number {
+    return this.tw_sub_req.add.Quote.length + this.tw_sub_req.add.Profile.length + this.tw_sub_req.add.Greeks.length;
   }
 
   checkIfLoggedIn(): void {
@@ -71,10 +74,10 @@ export class TwService {
     this.setupAfterLogin();
   }
 
-  login(): void {
+  login(username: string, password: string): void {
     const credentials = {
-      username: this.username,
-      password: this.password
+      username,
+      password
     };
 
     TastyWorks.setUser(credentials);
@@ -93,7 +96,8 @@ export class TwService {
             console.log(err.status);
           });
       }, err => {
-        console.log('login failed, please try again');
+        this.loginErrorMessage = 'login failed, please try again';
+        console.log(this.loginErrorMessage);
         console.log(err);
         this.loggedIn = false;
       });
@@ -227,6 +231,7 @@ export class TwService {
                     const ticker = v[0];
                     const q = this.quoteInfo.has(ticker) ? this.quoteInfo.get(ticker) : new Quote();
                     q.update(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11]);
+                    console.debug("RECV Quote for " + ticker + " : " + JSON.stringify(q));
                     this.quoteInfo.set(ticker, q);
                     message.data[0].splice(0, 12);
                   }
@@ -237,6 +242,7 @@ export class TwService {
                     const ticker = v[0];
                     const p = this.profileInfo.has(ticker) ? this.profileInfo.get(ticker) : new Profile();
                     p.update(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11]);
+                    console.debug("RECV Profile for " + ticker + " : " + JSON.stringify(p));
                     this.profileInfo.set(ticker, p);
                     message.data[0].splice(0, 12);
                   }
@@ -245,8 +251,10 @@ export class TwService {
                   while (message.data[0].length > 0) {
                     const v = message.data[0];
                     const ticker = v[0];
+                    console.debug("RECV Greeks for " + ticker);
                     const p = this.greeksInfo.has(ticker) ? this.greeksInfo.get(ticker) : new Greeks();
                     p.update(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12]);
+                    console.debug("RECV Greeks for " + ticker + " : " + JSON.stringify(p));
                     this.greeksInfo.set(ticker, p);
                     message.data[0].splice(0, 13);
                   }
@@ -329,13 +337,25 @@ export class TwService {
       .then((result) => { console.info(result); });
   }
 
-  getInfoForTicker(ticker): void {
-    this.twAddQuoteSub(ticker);
-    this.twAddProfileSub(ticker);
-    this.twPublishSubRequest();
-    TastyWorks.marketMetrics([ticker])
-      .then(a => console.log(a))
+  getInfoForTicker(ticker): Promise<any> {
+    return TastyWorks.marketMetrics([ticker])
+      .then(a => {
+        a.items.forEach(element => {
+          //const metrics = Convert.toMarketMetrics(element);
+          this.marketMetrics.set(ticker, element);
+        });
+
+        this.twAddQuoteSub(ticker);
+        this.twAddProfileSub(ticker);
+        this.twPublishSubRequest();
+      })
       .catch(err => console.log(err.status));
+  }
+
+  getIvForTickerExpirationTuple(ticker: string, expiration: string): string { // TODO should return number
+    const v = this.marketMetrics.get(ticker)['option-expiration-implied-volatilities'];
+    const k = v.find(m => m['expiration-date'] === expiration);
+    return k['implied-volatility'];
   }
 
   convertToQuoteString(ticker: string, strike: string, date: string, type: string): string {
@@ -348,12 +368,31 @@ export class TwService {
   }
 
   history(): void {
-    TastyWorks.marketMetrics(['AMZN', 'SPX'])
-      .then(marketData => {
-        console.log('======= Market Data =======');
-        console.log(marketData);
-      })
-      .then(() => TastyWorks.optionChain('PLTR'))
+    TastyWorks.history(this.tw_accid, '01/01/2019', '01/01/2025')
+      .catch(err => console.log(err.status))
+      .then(history => {
+        console.log(history);
+        this.dataArray = [];
+        for (const k of history) {
+          if (!('symbol' in k)) { continue; }
+          if (k['transaction-sub-type'] === 'Dividend') { continue; }
+
+          const symbol = k['underlying-symbol'];
+          if (!this.tickers.includes(symbol)) { this.tickers.push(symbol); }
+
+          //console.log('adding:' + JSON.stringify(k));
+          this.dataArray.push(k);
+        }
+        console.log('done parsing data.');
+
+        this.selectedTicker = this.tickers[0];
+        this.selectedTickerChanged();
+        this.getInfoForTicker(this.selectedTicker);
+      });
+  }
+
+  populateOptionChain(ticker: string): void {
+    TastyWorks.optionChain(ticker)
       .then(chain => {
         console.log('======= Option chain =======');
         console.log(chain);
@@ -369,27 +408,6 @@ export class TwService {
           }
         }
         this.twPublishSubRequest();
-      });
-
-    TastyWorks.history(this.tw_accid, '01/01/2019', '01/05/2021')
-      .catch(err => console.log(err.status))
-      .then(history => {
-        console.log(history)
-        this.dataArray = [];
-        for (const k of history) {
-          if (!('symbol' in k)) { continue; }
-          if (k['transaction-sub-type'] === 'Dividend') { continue; }
-
-          const symbol = k['underlying-symbol'];
-          if (!this.tickers.includes(symbol)) { this.tickers.push(symbol); }
-
-          //console.log('adding:' + JSON.stringify(k));
-          this.dataArray.push(k);
-        }
-        console.log('done parsing data.');
-
-        this.selectedTickerChanged();
-        this.getInfoForTicker(this.selectedTicker);
       });
   }
 }

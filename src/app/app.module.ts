@@ -18,6 +18,7 @@ import { HistoryComponent } from './history/history.component';
 import { ChartsComponent } from './charts/charts.component';
 import { TradeComponent } from './trade/trade.component';
 import { PortfolioComponent } from './portfolio/portfolio.component';
+import { ResearchComponent } from './research/research.component';
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import { PortfolioComponent } from './portfolio/portfolio.component';
     HistoryComponent,
     ChartsComponent,
     TradeComponent,
-    PortfolioComponent
+    PortfolioComponent,
+    ResearchComponent
   ],
   imports: [
     BrowserModule,

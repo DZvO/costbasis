@@ -18,6 +18,7 @@ import { Summary } from 'src/app/dtos/summary';
 import { TheoPrice } from 'src/app/dtos/theo-price';
 import { Trade } from 'src/app/dtos/trade';
 import { BalanceInfo } from '../dtos/balanceinfo';
+import { TwService } from '../tw.service';
 
 @Component({
   selector: 'app-trade',
@@ -32,10 +33,36 @@ import { BalanceInfo } from '../dtos/balanceinfo';
   ],
 })
 export class TradeComponent implements OnInit {
+  tickerField = '';
+  ticker = '';
 
-  constructor() { }
+  constructor(public twService: TwService) {
+    console.log("-----------constructor------------");
+  }
 
   ngOnInit(): void {
+    console.log("-----------ONINIT------------");
+  }
+
+  tickerchanged(ticker: string): void {
+    this.ticker = ticker;
+    //TODO unsubscribe previous ticker
+    console.log(ticker.toUpperCase());
+    this.twService.getInfoForTicker(ticker).then(_ => this.twService.populateOptionChain(ticker));
+  }
+
+  getQuoteForStrike(strike, exp, type, element): any {
+    return this.twService.quoteInfo.has(this.twService.convertToQuoteString(this.twService.optionChains['root-symbol'],
+      strike['strike-price'], exp['expiration-date'], type)) ?
+      this.twService.quoteInfo.get(this.twService.convertToQuoteString(this.twService.optionChains['root-symbol'],
+        strike['strike-price'], exp['expiration-date'], type))[element] : '';
+  }
+
+  getGreekForStrike(strike, exp, type, element): any {
+    return this.twService.greeksInfo.has(this.twService.convertToQuoteString(this.twService.optionChains['root-symbol'],
+      strike['strike-price'], exp['expiration-date'], type)) ?
+      this.twService.greeksInfo.get(this.twService.convertToQuoteString(this.twService.optionChains['root-symbol'],
+        strike['strike-price'], exp['expiration-date'], type))[element] : '';
   }
 
 }

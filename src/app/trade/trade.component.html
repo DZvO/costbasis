@@ -1,23 +1,21 @@
-<select (change)="selectedTickerChanged()" [(ngModel)]="selectedTicker">
-    <option *ngFor="let ticker of tickers">{{ticker}}</option>
-</select>
-<select *ngIf="watchlist != null" [(ngModel)]="wl_active">
-    <option *ngFor="let wl of watchlist">{{wl}}</option>
-</select>
-<div *ngIf="quoteInfo.has(selectedTicker)">
-    <label class="ticker">{{selectedTicker}}</label>
-    <label class="labelspacer">ask</label>
-    <label class="ask">{{quoteInfo.get(selectedTicker).askPrice}}</label><label
-        class="asksize">x{{quoteInfo.get(selectedTicker).askSize}}</label>
-    <label class="labelspacer">bid</label>
-    <label class="bid">{{quoteInfo.get(selectedTicker).bidPrice}}</label><label
-        class="asksize">x{{quoteInfo.get(selectedTicker).bidSize}}</label>
-    <label class="labelspacer">mid</label>
-    <label id="mid"
-        [ngClass]="(quoteInfo.get(selectedTicker).midPrice >= quoteInfo.get(selectedTicker).lastMidPrice)?'midprice-stonksgoup':'midprice-stonksgodown'">{{quoteInfo.get(selectedTicker).midPrice}}</label>
+<div class="upperbox">
+    <input type="text" [(ngModel)]="tickerField" (keyup.enter)="tickerchanged(tickerField)">
+    <div *ngIf="twService.quoteInfo.has(ticker)">
+        <label class="ticker">{{ticker}}</label>
+        <label class="labelspacer">ask</label>
+        <label class="ask">{{twService.quoteInfo.get(ticker).askPrice}}</label><label
+            class="asksize">x{{twService.quoteInfo.get(ticker).askSize}}</label>
+        <label class="labelspacer">bid</label>
+        <label class="bid">{{twService.quoteInfo.get(ticker).bidPrice}}</label><label
+            class="asksize">x{{twService.quoteInfo.get(ticker).bidSize}}</label>
+        <label class="labelspacer">mid</label>
+        <label id="mid"
+            [ngClass]="(twService.quoteInfo.get(ticker).midPrice >= twService.quoteInfo.get(ticker).lastMidPrice)?'midprice-stonksgoup':'midprice-stonksgodown'">{{twService.quoteInfo.get(ticker).midPrice}}</label>
+    </div>
 </div>
-<div *ngIf="profileInfo.has(selectedTicker)">
-    <label>{{profileInfo.get(selectedTicker).description}}</label>
+
+<div *ngIf="twService.profileInfo.has(ticker)">
+    <label>{{twService.profileInfo.get(ticker).description}}</label>
     <table>
         <tr>
             <th>short sale restr</th>
@@ -31,21 +29,54 @@
             <th>low52wk</th>
         </tr>
         <tr>
-            <td>{{profileInfo.get(selectedTicker).shortSaleRestriction}}</td>
-            <td>{{profileInfo.get(selectedTicker).tradingStatus}}</td>
-            <td>{{profileInfo.get(selectedTicker).statusReason}}</td>
-            <td>{{profileInfo.get(selectedTicker).haltStart.toLocaleString('de-DE', { timeZone: 'UTC' })}}</td>
-            <td>{{profileInfo.get(selectedTicker).haltEnd.toLocaleString('de-DE', { timeZone: 'UTC' })}}</td>
-            <td>{{profileInfo.get(selectedTicker).highLimitPrice}}</td>
-            <td>{{profileInfo.get(selectedTicker).lowLimitPrice}}</td>
-            <td>{{profileInfo.get(selectedTicker).high52WeekPrice}}</td>
-            <td>{{profileInfo.get(selectedTicker).low52WeekPrice}}</td>
+            <td>{{twService.profileInfo.get(ticker).shortSaleRestriction}}</td>
+            <td>{{twService.profileInfo.get(ticker).tradingStatus}}</td>
+            <td>{{twService.profileInfo.get(ticker).statusReason}}</td>
+            <td>{{twService.profileInfo.get(ticker).haltStart.toLocaleString('de-DE', { timeZone: 'UTC' })}}</td>
+            <td>{{twService.profileInfo.get(ticker).haltEnd.toLocaleString('de-DE', { timeZone: 'UTC' })}}</td>
+            <td>{{twService.profileInfo.get(ticker).highLimitPrice}}</td>
+            <td>{{twService.profileInfo.get(ticker).lowLimitPrice}}</td>
+            <td>{{twService.profileInfo.get(ticker).high52WeekPrice}}</td>
+            <td>{{twService.profileInfo.get(ticker).low52WeekPrice}}</td>
         </tr>
     </table>
 </div>
 
-<div class="panel panel-default table-responsive" *ngIf="optionChains != null">
-    <div class="panel-heading">Option 2 - Collapsible Table Structure</div>
+<div class="panel panel-default table-responsive" *ngIf="twService.optionChains != null">
+    <div class="panel-heading">
+        Options chain for {{ticker}}
+        <div>
+            IV idx {{twService.marketMetrics.get(ticker)["implied-volatility-index"]}}
+        </div>
+        <div>
+            IV % {{twService.marketMetrics.get(ticker)["implied-volatility-percentile"]}}
+        </div>
+        <div>
+            IV idx rank {{twService.marketMetrics.get(ticker)["implied-volatility-index-rank"]}}
+        </div>
+        <div>
+            Lendability {{twService.marketMetrics.get(ticker)["lendability"]}}
+        </div>
+        <div>
+            Borrow rate {{twService.marketMetrics.get(ticker)["borrow-rate"]}}
+        </div>
+        <div>
+            Earnings on {{twService.marketMetrics.get(ticker)["earnings"]["expected-report-date"]}}
+            {{twService.marketMetrics.get(ticker)["earnings"]["estimated"] ? "(estimated)" : ""}}
+            {{twService.marketMetrics.get(ticker)["earnings"]["late-flag"] ? "(late!)" : ""}}
+            @{{twService.marketMetrics.get(ticker)["earnings"]["time-of-day"]}} predicted
+            {{twService.marketMetrics.get(ticker)["earnings"]["consensus-estimate"]}}
+            for quarter ending on
+            {{twService.marketMetrics.get(ticker)["earnings"]["quarter-end-date"]}}
+
+        </div>
+        <div>
+            IV idx rank {{twService.marketMetrics.get(ticker)["implied-volatility-index-rank"]}}
+        </div>
+        <div>
+
+        </div>
+    </div>
     <table class="table table-hover table-bordered">
         <thead>
             <tr>
@@ -56,13 +87,15 @@
                 <th>more stuff</th>
             </tr>
         </thead>
-        <tbody *ngFor="let exp of optionChains.expirations">
+        <tbody *ngFor="let exp of twService.optionChains.expirations">
             <tr data-toggle="collapse" id="{{exp['expiration-date']}}"
                 [attr.data-target]="'.' + exp['expiration-date']">
                 <td>{{exp['expiration-type']}}</td>
                 <td>{{exp['expiration-date']}}</td>
                 <td>{{exp['days-to-expiration']}}</td>
-                <td>IV</td>
+                <td>{{
+                    twService.getIvForTickerExpirationTuple(ticker, exp['expiration-date'])
+                }}</td>
                 <td>more stuff</td>
             </tr>
             <tr class="collapse {{exp['expiration-date']}}">
@@ -85,53 +118,29 @@
                             <tbody>
                                 <tr *ngFor="let strike of exp['strikes']">
                                     <td>
-                                        {{quoteInfo.has(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'C')) ?
-                                        quoteInfo.get(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'C')).bidPrice : ' '}}
+                                        {{ getQuoteForStrike(strike, exp, 'C', 'bidPrice') }}
                                     </td>
                                     <td>
-                                        {{quoteInfo.has(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'C')) ?
-                                        quoteInfo.get(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'C')).askPrice : ' '}}
+                                        {{ getQuoteForStrike(strike, exp, 'C', 'askPrice') }}
                                     </td>
                                     <td>
-                                        {{greeksInfo.has(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'C')) ?
-                                        greeksInfo.get(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'C')).delta : ' '}}
+                                        {{ getGreekForStrike(strike, exp, 'C', 'delta') }}
                                     </td>
                                     <td>
-                                        {{greeksInfo.has(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'C')) ?
-                                        greeksInfo.get(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'C')).theta : ' '}}
+                                        {{ getGreekForStrike(strike, exp, 'C', 'theta') }}
                                     </td>
-                                    <td>{{strike['strike-price']}}</td>
+                                    <td class="strike-price">{{strike['strike-price']}}</td>
                                     <td>
-                                        {{quoteInfo.has(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'P')) ?
-                                        quoteInfo.get(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'P')).bidPrice : ' '}}
+                                        {{ getQuoteForStrike(strike, exp, 'P', 'bidPrice') }}
                                     </td>
                                     <td>
-                                        {{quoteInfo.has(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'P')) ?
-                                        quoteInfo.get(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'P')).askPrice : ' '}}
+                                        {{ getQuoteForStrike(strike, exp, 'P', 'askPrice') }}
                                     </td>
                                     <td>
-                                        {{greeksInfo.has(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'P')) ?
-                                        greeksInfo.get(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'P')).delta : ' '}}
+                                        {{ getGreekForStrike(strike, exp, 'P', 'delta') }}
                                     </td>
                                     <td>
-                                        {{greeksInfo.has(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'P')) ?
-                                        greeksInfo.get(convertToQuoteString(optionChains['root-symbol'],
-                                        strike['strike-price'], exp['expiration-date'], 'P')).theta : ' '}}
+                                        {{ getGreekForStrike(strike, exp, 'P', 'theta') }}
                                     </td>
                                 </tr>
                             </tbody>

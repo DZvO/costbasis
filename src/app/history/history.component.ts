@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TwService } from '../tw.service';
 
 @Component({
   selector: 'app-history',
@@ -7,9 +8,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HistoryComponent implements OnInit {
 
-  constructor() { }
+  constructor(public twService: TwService) { }
 
   ngOnInit(): void {
+    this.twService.history();
   }
 
 }
