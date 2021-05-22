@@ -31,7 +31,7 @@ export class TwService {
     [
       'account-number', 'exchange', 'exec-id', 'ext-exchange-order-number', 'ext-exec-id', 'ext-global-order-number', 'ext-group-fill-id', 'ext-group-id',
       'proprietary-index-option-fees', 'proprietary-index-option-fees-effect', 'regulatory-fees-effect', 'id', 'order-id', 'is-estimated-fee',
-      'clearing-fees', 'clearing-fees-effect', 'commission', 'commission-effect', 'action', 'regulatory-fees', 'net-value', 'net-value-effect',
+      'clearing-fees', 'clearing-fees-effect', 'commission', 'commission-effect', 'action', 'regulatory-fees', 'net-value', 'net-value-effect', 'exchange-affiliation-identifier'
     ];
 
   dataArray: {}[] = [];
@@ -130,8 +130,8 @@ export class TwService {
       this.displayData = this.dataArray;
     }
     else {
-      this.twAddQuoteSub(this.selectedTicker);
-      this.twPublishSubRequest();
+      //this.twAddQuoteSub(this.selectedTicker);
+      //this.twPublishSubRequest();
       console.log('selecting data for ' + this.selectedTicker);
       // filter all data to only contain selected ticker
       this.displayData = this.dataArray
@@ -337,6 +337,25 @@ export class TwService {
       .then((result) => { console.info(result); });
   }
 
+  twStopSubsAndSendReset(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.tw_sub_req.add.Quote = [];
+      this.tw_sub_req.add.Profile = [];
+      this.tw_sub_req.add.Greeks = [];
+
+      this.cometd.publish(
+        '/service/sub',
+        { reset: true },
+        publishAck => {
+          if (publishAck.successful) {
+            return resolve('reset acknowledged');
+          } else {
+            return reject('error');
+          }
+        });
+    });
+  }
+
   getInfoForTicker(ticker): Promise<any> {
     return TastyWorks.marketMetrics([ticker])
       .then(a => {
@@ -387,7 +406,7 @@ export class TwService {
 
         this.selectedTicker = this.tickers[0];
         this.selectedTickerChanged();
-        this.getInfoForTicker(this.selectedTicker);
+        //this.getInfoForTicker(this.selectedTicker);
       });
   }
 

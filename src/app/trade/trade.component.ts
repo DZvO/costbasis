@@ -37,17 +37,18 @@ export class TradeComponent implements OnInit {
   ticker = '';
 
   constructor(public twService: TwService) {
-    console.log("-----------constructor------------");
   }
 
   ngOnInit(): void {
-    console.log("-----------ONINIT------------");
+    if (localStorage.getItem('ticker') != null) {
+      this.tickerchanged(localStorage.getItem('ticker'));
+    }
   }
 
   tickerchanged(ticker: string): void {
     this.ticker = ticker;
-    //TODO unsubscribe previous ticker
-    console.log(ticker.toUpperCase());
+    localStorage.setItem("ticker", ticker);
+    this.twService.twStopSubsAndSendReset();
     this.twService.getInfoForTicker(ticker).then(_ => this.twService.populateOptionChain(ticker));
   }
 

@@ -44,37 +44,32 @@
 
 <div class="panel panel-default table-responsive" *ngIf="twService.optionChains != null">
     <div class="panel-heading">
-        Options chain for {{ticker}}
         <div>
-            IV idx {{twService.marketMetrics.get(ticker)["implied-volatility-index"]}}
+            Options chain for {{ticker}}
         </div>
         <div>
-            IV % {{twService.marketMetrics.get(ticker)["implied-volatility-percentile"]}}
+            IV idx <strong>{{twService.marketMetrics.get(ticker)["implied-volatility-index"]}}</strong>
         </div>
         <div>
-            IV idx rank {{twService.marketMetrics.get(ticker)["implied-volatility-index-rank"]}}
+            IV % <strong>{{twService.marketMetrics.get(ticker)["implied-volatility-percentile"]}}</strong>
         </div>
         <div>
-            Lendability {{twService.marketMetrics.get(ticker)["lendability"]}}
+            IV idx rank <strong>{{twService.marketMetrics.get(ticker)["implied-volatility-index-rank"]}}</strong>
         </div>
         <div>
-            Borrow rate {{twService.marketMetrics.get(ticker)["borrow-rate"]}}
+            Lendability <strong>{{twService.marketMetrics.get(ticker)["lendability"]}}</strong>
         </div>
         <div>
-            Earnings on {{twService.marketMetrics.get(ticker)["earnings"]["expected-report-date"]}}
+            Borrow rate <strong>{{twService.marketMetrics.get(ticker)["borrow-rate"]}}</strong>
+        </div>
+        <div>
+            Earnings on <strong>{{twService.marketMetrics.get(ticker)["earnings"]["expected-report-date"]}}</strong>
             {{twService.marketMetrics.get(ticker)["earnings"]["estimated"] ? "(estimated)" : ""}}
             {{twService.marketMetrics.get(ticker)["earnings"]["late-flag"] ? "(late!)" : ""}}
-            @{{twService.marketMetrics.get(ticker)["earnings"]["time-of-day"]}} predicted
+            @ {{twService.marketMetrics.get(ticker)["earnings"]["time-of-day"]}} predicted
             {{twService.marketMetrics.get(ticker)["earnings"]["consensus-estimate"]}}
             for quarter ending on
             {{twService.marketMetrics.get(ticker)["earnings"]["quarter-end-date"]}}
-
-        </div>
-        <div>
-            IV idx rank {{twService.marketMetrics.get(ticker)["implied-volatility-index-rank"]}}
-        </div>
-        <div>
-
         </div>
     </div>
     <table class="table table-hover table-bordered">
@@ -84,7 +79,6 @@
                 <th>date</th>
                 <th>dte</th>
                 <th>IV</th>
-                <th>more stuff</th>
             </tr>
         </thead>
         <tbody *ngFor="let exp of twService.optionChains.expirations">
@@ -93,10 +87,7 @@
                 <td>{{exp['expiration-type']}}</td>
                 <td>{{exp['expiration-date']}}</td>
                 <td>{{exp['days-to-expiration']}}</td>
-                <td>{{
-                    twService.getIvForTickerExpirationTuple(ticker, exp['expiration-date'])
-                }}</td>
-                <td>more stuff</td>
+                <td>{{twService.getIvForTickerExpirationTuple(ticker, exp['expiration-date'])}}</td>
             </tr>
             <tr class="collapse {{exp['expiration-date']}}">
                 <td colspan="999">
@@ -104,44 +95,40 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>bid</th>
-                                    <th>ask</th>
+                                    <th>volatility</th>
+                                    <th>oi</th>
+                                    <th>volume</th>
                                     <th>𝛥</th>
                                     <th>𝛩</th>
+                                    <th>bid</th>
+                                    <th>ask</th>
                                     <th>strike</th>
                                     <th>bid</th>
                                     <th>ask</th>
                                     <th>𝛥</th>
                                     <th>𝛩</th>
+                                    <th>oi</th>
+                                    <th>volume</th>
+                                    <th>volatility</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr *ngFor="let strike of exp['strikes']">
-                                    <td>
-                                        {{ getQuoteForStrike(strike, exp, 'C', 'bidPrice') }}
-                                    </td>
-                                    <td>
-                                        {{ getQuoteForStrike(strike, exp, 'C', 'askPrice') }}
-                                    </td>
-                                    <td>
-                                        {{ getGreekForStrike(strike, exp, 'C', 'delta') }}
-                                    </td>
-                                    <td>
-                                        {{ getGreekForStrike(strike, exp, 'C', 'theta') }}
-                                    </td>
+                                    <td>{{ getGreekForStrike(strike, exp, 'C', 'volatility') }}</td>
+                                    <td>oi</td>
+                                    <td>vol</td>
+                                    <td>{{ getQuoteForStrike(strike, exp, 'C', 'bidPrice') }}</td>
+                                    <td>{{ getQuoteForStrike(strike, exp, 'C', 'askPrice') }}</td>
+                                    <td>{{ getGreekForStrike(strike, exp, 'C', 'delta') }}</td>
+                                    <td>{{ getGreekForStrike(strike, exp, 'C', 'theta') }}</td>
                                     <td class="strike-price">{{strike['strike-price']}}</td>
-                                    <td>
-                                        {{ getQuoteForStrike(strike, exp, 'P', 'bidPrice') }}
-                                    </td>
-                                    <td>
-                                        {{ getQuoteForStrike(strike, exp, 'P', 'askPrice') }}
-                                    </td>
-                                    <td>
-                                        {{ getGreekForStrike(strike, exp, 'P', 'delta') }}
-                                    </td>
-                                    <td>
-                                        {{ getGreekForStrike(strike, exp, 'P', 'theta') }}
-                                    </td>
+                                    <td>{{ getQuoteForStrike(strike, exp, 'P', 'bidPrice') }}</td>
+                                    <td>{{ getQuoteForStrike(strike, exp, 'P', 'askPrice') }}</td>
+                                    <td>{{ getGreekForStrike(strike, exp, 'P', 'delta') }}</td>
+                                    <td>{{ getGreekForStrike(strike, exp, 'P', 'theta') }}</td>
+                                    <td>oi</td>
+                                    <td>vol</td>
+                                    <td>{{ getGreekForStrike(strike, exp, 'P', 'volatility') }}</td>
                                 </tr>
                             </tbody>
                         </table>
